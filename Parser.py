@@ -1,5 +1,3 @@
-from itertools import islice
-import re
 C_ARITHMETIC = 1
 C_PUSH = 2
 C_POP = 3
@@ -9,43 +7,45 @@ C_IF = 6
 C_FUNCTION = 7
 C_RETURN = 8
 C_CALL = 9
+
 class Parser():
     def __init__(self, inputFile):
         self.f = open(inputFile, "r")
-        self.lineNumber = 0
+        self.currentLine = ""
         self.currentCommand = ""
+        self.parsedCommand = ""
 
     def hasMoreCommands(self):
-        remainingFile = islice(self.f, self.lineNumber, None)  
-        for line in remainingFile:
-            if isCommand(line) == True:
+        for line in self.f:
+            if self.isCommand(line) == True:
+                self.currentLine = line
                 return True
         return False
     
     def advance(self):
-        line = self.f.readline()
-        while isCommand(line) == False:
-            line = self.f.readline()
-            self.lineNumber += 1
-        self.currentCommand = line.strip()
+        self.currentCommand  = self.currentLine.strip()
+        self.parsedCommand = self.currentCommand.split()
 
     def commandType(self):
-        self.parsedCommand = currentCommand.split()
-        if len(parsedCommand) == 1 and parsedCommand[0] != "return":
+        commandDict = {'push': C_PUSH, 'pop': C_POP, 'label': C_LABEL, 'goto': C_GOTO, 'if-goto': C_IF,
+        'function': C_FUNCTION, 'return': C_RETURN, 'call': C_CALL
+        }
+        if self.parsedCommand[0] in commandDict.keys():
+            return commandDict[self.parsedCommand[0]]
+        else:
             return C_ARITHMETIC
-        elif parsedCommand[0] == 'push':
-            return C_PUSH
-        elif parsedCommand[0] == 'pop':
-            return C_POP
 
     def arg1(self):
-        return self.parsedCommand[0]
+        if self.commandType() == C_ARITHMETIC:
+            return self.parsedCommand[0]
+        else:
+            return self.parsedCommand[1]
     
     def arg2(self):
-        return self.parsedCommand[1]
+        return self.parsedCommand[2]
         
     def isCommand(self, line):
-        if line != "\n" and line.startswith("\\") == False:
+        if line.strip() and line.startswith("//") == False:
             return True
         else:
             return False
