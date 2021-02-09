@@ -2,21 +2,24 @@ from Parser import C_ARITHMETIC, C_PUSH, C_POP, C_LABEL, C_GOTO, C_IF, C_FUNCTIO
 from Parser import Parser
 class CodeWriter():
 
-    def __init__(self, outputFile):
+    def __init__(self, outputFile, isDirectory):
         self.f = open(outputFile, "a")
         self.currentFunction = ''
         self.labelCounter = 0
         self.callCounter = {}
-        self.writeInit()
+        if isDirectory == True:
+            self.writeInit()
 
     def writeInit(self):
         # instructions to be stored at start of ROM - set up stack pointer and call Sys.init
+        self.fileName = 'sys'
+        self.currentFunction = 'bootstrap'
+        self.currentCommand = "call sys.init 0"
         output = '@256\n'
         output += 'D=A\n'
         output += '@SP\n'
         output += 'M=D\n'
-        output += '@Sys.init\n'
-        output += '0;JMP\n'
+        output += self.writeCall('Sys.init', '0')
         self.f.write(output)
 
     def setFileName(self, inputFile):
@@ -351,7 +354,7 @@ class CodeWriter():
         output += '@THAT\n'
         output += 'D=M\n'
         push()
-        # set ARG pointer to save caller's ARG pointer
+        # set ARG pointer
         output += '@SP\n'
         output += 'D=M\n'
         output += '@5\n'

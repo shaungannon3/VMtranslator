@@ -13,7 +13,7 @@ class Main:
             if os.path.exists(outputFile):
                 os.remove(outputFile)
             # create new codewriter
-            self.code = CodeWriter(outputFile)
+            self.code = CodeWriter(outputFile, isDirectory = False)
             # parse input .vm file
             self.parseFile(inputFile)
             # close output file
@@ -26,7 +26,7 @@ class Main:
                 if os.path.exists(outputFile):
                     os.remove(outputFile)
                 # create new codewriter    
-                self.code = CodeWriter(outputFile)
+                self.code = CodeWriter(outputFile, isDirectory = True)
                 # loop through files in directory and parse all .vm files
                 for entry in os.scandir(inputPath):
                     if entry.path.endswith(".vm"):
